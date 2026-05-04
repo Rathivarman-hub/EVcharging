@@ -18,6 +18,7 @@ body {
   background-color: var(--bg-dark);
   color: var(--text-main);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .card {
@@ -60,6 +61,7 @@ body {
   background: rgba(15, 23, 42, 0.8) !important;
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 1050;
 }
 
 .nav-link {
@@ -76,6 +78,9 @@ body {
   background: rgba(15, 23, 42, 0.95);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   min-height: calc(100vh - 56px);
+  position: sticky;
+  top: 56px;
+  transition: all 0.3s ease;
 }
 
 /* Animations */
@@ -119,4 +124,88 @@ body {
 
 .input-group > .input-group-text {
   border-right: none !important;
+}
+
+/* Responsive Utilities */
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    left: -240px;
+    height: 100vh;
+    z-index: 1040;
+  }
+  
+  .sidebar.show {
+    left: 0;
+  }
+
+  main {
+    padding: 1.5rem !important;
+  }
+  
+  h1 { font-size: 1.75rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+}
+
+@media (max-width: 767.98px) {
+  .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .glass-card {
+    border-radius: 0.75rem;
+  }
+  
+  .btn-primary {
+    padding: 0.6rem 1.25rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .nav-link {
+    padding: 0.75rem 1rem !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  main {
+    padding: 1rem !important;
+  }
+  
+  .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+  
+  .col, [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  .display-4 {
+    font-size: 2.5rem;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

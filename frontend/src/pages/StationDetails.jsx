@@ -81,7 +81,7 @@ const StationDetails = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <Card className="glass-card overflow-hidden sticky-top" style={{ top: '80px' }}>
+            <Card className="glass-card overflow-hidden sticky-lg-top" style={{ top: '80px', zIndex: 10 }}>
               <Card.Img 
                 variant="top" 
                 src={`https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&q=80`} 
@@ -131,8 +131,8 @@ const StationDetails = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
           >
-            <Card className="glass-card p-4">
-              <div className="d-flex justify-content-between align-items-center mb-4">
+            <Card className="glass-card p-3 p-md-4">
+              <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center mb-4 gap-3">
                 <div>
                   <h4 className="text-white fw-bold mb-1">Available Time Slots</h4>
                   <p className="text-muted mb-0">Select a slot for today ({new Date().toLocaleDateString()})</p>
@@ -148,7 +148,7 @@ const StationDetails = () => {
                 onSelect={setSelectedSlot} 
               />
 
-              <div className="mt-5 p-4 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-20 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4">
+              <div className="mt-5 p-3 p-md-4 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-20 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 text-center text-md-start">
                 <div>
                   <h5 className="text-white fw-bold mb-1">
                     {selectedSlot ? `Selected: ${selectedSlot.time}` : 'Select a slot to proceed'}
@@ -158,7 +158,7 @@ const StationDetails = () => {
                 <Button 
                   variant="primary" 
                   size="lg" 
-                  className="px-5 py-3 fw-bold shadow"
+                  className="w-100 w-md-auto px-5 py-3 fw-bold shadow"
                   disabled={!selectedSlot || bookingLoading}
                   onClick={handleBooking}
                 >

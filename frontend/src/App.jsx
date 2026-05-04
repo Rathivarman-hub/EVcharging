@@ -22,18 +22,23 @@ import AdminStations from './pages/AdminStations';
 
 const AppLayout = ({ children }) => {
   const { user } = useAuth();
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+  const closeSidebar = () => setIsSidebarOpen(false);
+
   return (
     <div className="d-flex flex-column min-vh-100">
-      <Navbar />
+      <Navbar onToggleSidebar={toggleSidebar} />
       <div className="container-fluid flex-grow-1 d-flex p-0">
         <div className="row g-0 w-100">
           {user && (
             <div className="col-auto">
-              <Sidebar />
+              <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
             </div>
           )}
           <div className="col flex-grow-1">
-            <main className="p-4 h-100">
+            <main className="p-3 p-md-4 h-100">
               {children}
             </main>
           </div>
