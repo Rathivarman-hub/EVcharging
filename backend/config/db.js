@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import dns from 'dns';
 
 // Set DNS to Google to resolve MongoDB Atlas SRV records reliably
-dns.setServers(['8.8.8.8', '1.1.1.1']);
+dns.setServers(['1.1.1.1']);
 
 const connectDB = async () => {
   try {
