@@ -4,22 +4,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT), // ✅ Cast to number
-  secure: process.env.SMTP_PORT === '465',
+  service: "gmail",
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 10000,
 });
-
-// ✅ Verify SMTP connection in development
-if (process.env.NODE_ENV !== 'production') {
-  transporter.verify((error) => {
-    if (error) console.error('SMTP connection failed:', error);
-    else console.log('✅ SMTP server ready');
-  });
-}
 
 const FROM = `"EV Charging Booking" <${process.env.SMTP_USER}>`;
 
