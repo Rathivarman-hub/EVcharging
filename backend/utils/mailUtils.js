@@ -1,42 +1,28 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
+const FROM = 'EV Charging Booking <onboarding@resend.dev>';
 
 export const sendOTPEmail = async (email, otp) => {
-  const mailOptions = {
-    from: `"${process.env.APP_NAME || "EV Charging"}" <${process.env.SMTP_USER}>`,
+  const { error } = await resend.emails.send({
+    from: FROM,
     to: email,
-    subject: 'Your verification code',
-    html: `
-      <p>Your one-time verification code is:</p>
-      <h2 style="letter-spacing:6px;">${otp}</h2>
-      <p>This code expires in <strong>10 minutes</strong>. Do not share it.</p>
-    `,
-  };
+    subject: 'Your Verification OTP',
+    text: `Your OTP for verification is: ${otp}. It will expire in 10 minutes.`,
+  });
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
+  if (error) {
     console.error('Detailed Error sending OTP email:', error);
     throw new Error(`Failed to send OTP email: ${error.message}`);
   }
 };
 
 export const sendBookingConfirmation = async (email, bookingDetails) => {
-  const mailOptions = {
-    from: `"EV Charging Booking" <${process.env.SMTP_USER}>`,
+  const { error } = await resend.emails.send({
+    from: FROM,
     to: email,
     subject: 'Booking Confirmation',
     html: `
@@ -46,26 +32,22 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
       <p><strong>Time Slot:</strong> ${bookingDetails.timeSlot}</p>
       <p>Thank you for using our service.</p>
     `,
-  };
+  });
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
+  if (error) {
     console.error('Error sending confirmation email:', error);
   }
 };
 
 export const sendCancellationEmail = async (email) => {
-  const mailOptions = {
-    from: `"EV Charging Booking" <${process.env.SMTP_USER}>`,
+  const { error } = await resend.emails.send({
+    from: FROM,
     to: email,
     subject: 'Booking Cancelled',
     text: 'Your EV charging slot booking has been successfully cancelled.',
-  };
+  });
 
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
+  if (error) {
     console.error('Error sending cancellation email:', error);
   }
 };
