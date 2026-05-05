@@ -3,20 +3,6 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-// ✅ Validate required environment variables at startup
-const requiredEnvVars = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'];
-for (const key of requiredEnvVars) {
-  if (!process.env[key]) throw new Error(`Missing required env var: ${key}`);
-}
-
-// ✅ Escape HTML to prevent XSS
-const escapeHtml = (str) =>
-  String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT), // ✅ Cast to number
@@ -37,23 +23,16 @@ if (process.env.NODE_ENV !== 'production') {
 
 const FROM = `"EV Charging Booking" <${process.env.SMTP_USER}>`;
 
-export const sendOTPEmail = async (email, otp) => {
+export const sendOTPEmail = async (email, otp, expiryMinutes = 10) => {
   try {
     await transporter.sendMail({
       from: FROM,
       to: email,
       subject: 'Your verification code',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;">
-          <h2 style="color: #4F46E5; text-align: center;">Verification Code</h2>
-          <p>Your one-time verification code is:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <h1 style="letter-spacing: 8px; color: #4F46E5; font-size: 32px; background: #f3f4f6; padding: 15px; border-radius: 4px; display: inline-block;">${escapeHtml(otp)}</h1>
-          </div>
-          <p>This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
-          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-          <p style="font-size: 12px; color: #64748b; text-align: center;">If you didn't request this code, please ignore this email.</p>
-        </div>
+        ...
+        <p>This code expires in <strong>${expiryMinutes} minutes</strong>. Do not share it with anyone.</p>
+        ...
       `,
     });
   } catch (error) {

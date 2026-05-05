@@ -28,7 +28,7 @@ export const sendOTP = async (req, res) => {
     user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    await sendOTPEmail(user.email, otp);
+await sendOTPEmail(user.email, otp, 5);
     res.status(200).json({ message: 'OTP sent to email' });
   } catch (error) {
     console.error('API Error in sendOTP:', error);

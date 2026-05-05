@@ -33,8 +33,9 @@ const httpServer = createServer(app);
 // Configure Socket.io
 const io = new Server(httpServer, {
   cors: {
-    origin: '*', // Configure appropriately for production
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   }
 });
 
