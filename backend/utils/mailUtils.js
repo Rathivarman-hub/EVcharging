@@ -10,8 +10,12 @@ export const sendOTPEmail = async (email, otp) => {
   const { error } = await resend.emails.send({
     from: FROM,
     to: email,
-    subject: 'Your Verification OTP',
-    text: `Your OTP for verification is: ${otp}. It will expire in 10 minutes.`,
+    subject: 'Your verification code',
+    html: `
+      <p>Your one-time verification code is:</p>
+      <h2 style="letter-spacing:6px; color: #4F46E5;">${otp}</h2>
+      <p>This code expires in <strong>10 minutes</strong>. Do not share it.</p>
+    `,
   });
 
   if (error) {
