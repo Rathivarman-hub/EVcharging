@@ -4,30 +4,26 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  service: 'gmail',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false,
-    servername: 'smtp.gmail.com'
-  },
-  connectionTimeout: 60000,
-  greetingTimeout: 60000,
-  socketTimeout: 60000,
-  logger: true,
-  debug: true,
+    rejectUnauthorized: false
+  }
 });
 
 export const sendOTPEmail = async (email, otp) => {
   const mailOptions = {
-    from: `"EV Charging Booking" <${process.env.SMTP_USER}>`,
+    from: `"${process.env.APP_NAME || "EV Charging"}" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Your Verification OTP',
-    text: `Your OTP for verification is: ${otp}. It will expire in 10 minutes.`,
+    subject: 'Your verification code',
+    html: `
+      <p>Your one-time verification code is:</p>
+      <h2 style="letter-spacing:6px;">${otp}</h2>
+      <p>This code expires in <strong>10 minutes</strong>. Do not share it.</p>
+    `,
   };
 
   try {
