@@ -31,8 +31,11 @@ export const sendOTP = async (req, res) => {
     await sendOTPEmail(user.email, otp);
     res.status(200).json({ message: 'OTP sent to email' });
   } catch (error) {
-    console.error('API Error:', error);
-    res.status(500).json({ message: error.message });
+    console.error('API Error in sendOTP:', error);
+    res.status(500).json({ 
+      message: 'Failed to send OTP. Please check server logs.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
