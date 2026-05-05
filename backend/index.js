@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import dns from 'dns';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -20,6 +21,7 @@ import bookingRoutes from './routes/bookingRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
 dotenv.config();
+dns.setDefaultResultOrder('ipv4first');
 
 // Connect to MongoDB
 await connectDB();
