@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM = 'EV Charging Booking <onboarding@resend.dev>';
+const FROM = 'EV Charging Booking <rathivarman0104@gmail.com>';
 
 export const sendOTPEmail = async (email, otp) => {
   const { error } = await resend.emails.send({
