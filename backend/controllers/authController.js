@@ -3,8 +3,11 @@ import { generateAccessToken, generateRefreshToken } from '../utils/tokenUtils.j
 import { sendOTPEmail } from '../utils/mailUtils.js';
 import crypto from 'crypto';
 
+const normalizeEmail = (email = '') => email.trim().toLowerCase();
+
 export const registerUser = async (req, res) => {
-  const { email, password, name } = req.body;
+  const { password, name } = req.body;
+  const email = normalizeEmail(req.body.email);
   try {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ message: 'User already exists' });
@@ -18,7 +21,7 @@ export const registerUser = async (req, res) => {
 };
 
 export const sendOTP = async (req, res) => {
-  const { email } = req.body;
+  const email = normalizeEmail(req.body.email);
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -28,7 +31,7 @@ export const sendOTP = async (req, res) => {
     user.otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-await sendOTPEmail(user.email, otp, 5);
+    await sendOTPEmail(user.email, otp, 10);
     res.status(200).json({ message: 'OTP sent to email' });
   } catch (error) {
     console.error('API Error in sendOTP:', error);
@@ -40,7 +43,8 @@ await sendOTPEmail(user.email, otp, 5);
 };
 
 export const verifyOTP = async (req, res) => {
-  const { email, otp } = req.body;
+  const { otp } = req.body;
+  const email = normalizeEmail(req.body.email);
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -62,7 +66,8 @@ export const verifyOTP = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = normalizeEmail(req.body.email);
   try {
     const user = await User.findOne({ email });
     if (user && (await user.matchPassword(password))) {
@@ -93,7 +98,8 @@ export const loginUser = async (req, res) => {
 };
 
 export const verifyLoginOTP = async (req, res) => {
-  const { email, otp } = req.body;
+  const { otp } = req.body;
+  const email = normalizeEmail(req.body.email);
   try {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });

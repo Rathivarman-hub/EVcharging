@@ -5,7 +5,8 @@ dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = 'EV Charging Booking <onboarding@resend.dev>';
+const FROM = process.env.RESEND_FROM_EMAIL || 'EV Charging Booking <onboarding@resend.dev>';
+const RESEND_TEST_MODE_HINT = 'You can only send testing emails to your own email address';
 
 const escapeHtml = (text) => {
   if (typeof text !== 'string') return text;
@@ -43,7 +44,13 @@ export const sendOTPEmail = async (email, otp, expiryMinutes = 10) => {
     return data;
   } catch (error) {
     console.error('Error sending OTP email with Resend:', error);
-    throw new Error(`Failed to send OTP email: ${error.message}`);
+    const errorMessage = error?.message || 'Unknown email provider error';
+    if (errorMessage.includes(RESEND_TEST_MODE_HINT)) {
+      throw new Error(
+        'Email provider is in test mode. Verify your domain in Resend and set RESEND_FROM_EMAIL in backend .env to send OTPs to other email addresses.'
+      );
+    }
+    throw new Error(`Failed to send OTP email: ${errorMessage}`);
   }
 };
 
