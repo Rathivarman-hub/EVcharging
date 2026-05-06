@@ -33,12 +33,16 @@ export const bookSlot = async (req, res) => {
     const station = await Station.findById(stationId);
     const slot = await Slot.findById(slotId);
 
-    // Send confirmation email
-    await sendBookingConfirmation(req.user.email, {
-      stationName: station.name,
-      date: startOfDay,
-      timeSlot: slot.time
-    });
+    // Do not fail booking if mail provider is unavailable.
+    try {
+      await sendBookingConfirmation(req.user.email, {
+        stationName: station.name,
+        date: startOfDay,
+        timeSlot: slot.time
+      });
+    } catch (mailError) {
+      console.error('Booking confirmation email failed:', mailError.message);
+    }
 
     res.status(201).json(booking);
   } catch (error) {
@@ -70,11 +74,16 @@ export const cancelBooking = async (req, res) => {
       .populate('station')
       .populate('slot');
 
-    await sendCancellationEmail(req.user.email, {
-      stationName: bookingWithDetails.station.name,
-      date: bookingWithDetails.date,
-      timeSlot: bookingWithDetails.slot.time
-    });
+    // Do not fail cancellation if mail provider is unavailable.
+    try {
+      await sendCancellationEmail(req.user.email, {
+        stationName: bookingWithDetails.station.name,
+        date: bookingWithDetails.date,
+        timeSlot: bookingWithDetails.slot.time
+      });
+    } catch (mailError) {
+      console.error('Cancellation email failed:', mailError.message);
+    }
 
     res.status(200).json({ message: 'Booking cancelled successfully' });
   } catch (error) {
