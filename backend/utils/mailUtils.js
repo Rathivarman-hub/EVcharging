@@ -1,43 +1,55 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-    family: 4,
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM = `"EV Charging Booking" <${process.env.SMTP_USER}>`;
+const FROM = 'EV Charging Booking <onboarding@resend.dev>';
+
+const escapeHtml = (text) => {
+  if (typeof text !== 'string') return text;
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
 
 export const sendOTPEmail = async (email, otp, expiryMinutes = 10) => {
   try {
-    await transporter.sendMail({
+    const { data, error } = await resend.emails.send({
       from: FROM,
       to: email,
       subject: 'Your verification code',
       html: `
-        ...
-        <p>This code expires in <strong>${expiryMinutes} minutes</strong>. Do not share it with anyone.</p>
-        ...
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px;">
+          <h2 style="color: #2563eb; text-align: center;">Verification Code</h2>
+          <p>Hi there, use the following code to verify your account:</p>
+          <div style="background: #f3f4f6; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #1e40af;">${otp}</span>
+          </div>
+          <p>This code expires in <strong>${expiryMinutes} minutes</strong>. Do not share it with anyone.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;">
+          <p style="font-size: 12px; color: #64748b; text-align: center;">EV Charging Booking System</p>
+        </div>
       `,
     });
+
+    if (error) {
+      throw error;
+    }
+    return data;
   } catch (error) {
-    console.error('Detailed Error sending OTP email:', error);
+    console.error('Error sending OTP email with Resend:', error);
     throw new Error(`Failed to send OTP email: ${error.message}`);
   }
 };
 
 export const sendBookingConfirmation = async (email, bookingDetails) => {
   try {
-    await transporter.sendMail({
+    const { data, error } = await resend.emails.send({
       from: FROM,
       to: email,
       subject: 'Booking Confirmation - EV Charging',
@@ -56,17 +68,20 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
         </div>
       `,
     });
+
+    if (error) {
+      throw error;
+    }
+    return data;
   } catch (error) {
-    // ✅ Consistent error handling — rethrow instead of silently swallowing
-    console.error('Error sending confirmation email:', error);
+    console.error('Error sending confirmation email with Resend:', error);
     throw new Error(`Failed to send confirmation email: ${error.message}`);
   }
 };
 
-// ✅ Now accepts bookingDetails to show which booking was cancelled
 export const sendCancellationEmail = async (email, bookingDetails) => {
   try {
-    await transporter.sendMail({
+    const { data, error } = await resend.emails.send({
       from: FROM,
       to: email,
       subject: 'Booking Cancelled - EV Charging',
@@ -85,9 +100,13 @@ export const sendCancellationEmail = async (email, bookingDetails) => {
         </div>
       `,
     });
+
+    if (error) {
+      throw error;
+    }
+    return data;
   } catch (error) {
-    // ✅ Consistent error handling — rethrow instead of silently swallowing
-    console.error('Error sending cancellation email:', error);
+    console.error('Error sending cancellation email with Resend:', error);
     throw new Error(`Failed to send cancellation email: ${error.message}`);
   }
 };
