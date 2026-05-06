@@ -9,11 +9,9 @@ import { motion } from 'framer-motion';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [otp, setOtp] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [step, setStep] = useState(1); // 1: Login, 2: OTP
-  const { login, verifyLogin, user } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -26,30 +24,11 @@ const Login = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await login(email, password);
-      if (res?.requiresOTP) {
-        setStep(2);
-        toast.info('OTP sent to your email');
-      } else {
-        toast.success('Welcome back!');
-        navigate('/dashboard');
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      await verifyLogin(email, otp);
-      toast.success('Login successful!');
+      await login(email, password);
+      toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Invalid OTP');
+      toast.error(error.response?.data?.message || 'Login failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -70,7 +49,6 @@ const Login = () => {
             <p className="text-muted">Sign in to manage your bookings</p>
           </div>
 
-          {step === 1 ? (
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3">
                 <Form.Label className="text-muted small fw-bold">EMAIL ADDRESS</Form.Label>
@@ -112,13 +90,13 @@ const Login = () => {
                 </InputGroup>
               </Form.Group>
 
-              <Button 
+              <Button
                 variant="primary" 
                 type="submit" 
                 className="w-100 mb-3 d-flex align-items-center justify-content-center gap-2"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Verifying...' : (
+                {isSubmitting ? 'Signing in...' : (
                   <>
                     <LogIn size={20} />
                     Sign In
@@ -132,41 +110,6 @@ const Login = () => {
                 </p>
               </div>
             </Form>
-          ) : (
-            <Form onSubmit={handleVerifyOTP}>
-              <div className="text-center mb-4">
-                <p className="text-white-50 small">Enter the 6-digit code sent to {email}</p>
-              </div>
-              <Form.Group className="mb-4">
-                <Form.Label className="text-muted small fw-bold">OTP CODE</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="000000"
-                  className="text-center fs-4 letter-spacing-lg"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').substring(0, 6))}
-                  required
-                />
-              </Form.Group>
-
-              <Button 
-                variant="primary" 
-                type="submit" 
-                className="w-100 mb-3 py-2 fw-bold"
-                disabled={isSubmitting || otp.length !== 6}
-              >
-                {isSubmitting ? 'Verifying...' : 'Verify & Login'}
-              </Button>
-              
-              <Button 
-                variant="link" 
-                className="w-100 text-muted small text-decoration-none"
-                onClick={() => setStep(1)}
-              >
-                Back to Login
-              </Button>
-            </Form>
-          )}
         </Card>
       </motion.div>
     </Container>

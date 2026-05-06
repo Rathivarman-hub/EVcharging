@@ -11,7 +11,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, sendOTP, user } = useAuth();
+  const { register, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,9 +25,8 @@ const Register = () => {
     setIsSubmitting(true);
     try {
       await register(name, email, password);
-      await sendOTP(email);
-      toast.success('Registration successful! Check your email for OTP.');
-      navigate('/verify-otp', { state: { email } });
+      toast.success('Registration successful! Please login.');
+      navigate('/login');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Registration failed');
     } finally {

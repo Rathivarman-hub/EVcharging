@@ -54,16 +54,6 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const { data } = await api.post('/auth/login', { email, password });
-    if (data.requiresOTP) {
-      return data; // Return to component to trigger OTP state
-    }
-    localStorage.setItem('accessToken', data.accessToken);
-    setUser(data);
-    return data;
-  };
-
-  const verifyLogin = async (email, otp) => {
-    const { data } = await api.post('/auth/verify-login', { email, otp });
     localStorage.setItem('accessToken', data.accessToken);
     setUser(data);
     return data;
@@ -71,16 +61,6 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password) => {
     const { data } = await api.post('/auth/register', { name, email, password });
-    return data;
-  };
-
-  const verifyOTP = async (email, otp) => {
-    const { data } = await api.post('/auth/verify-otp', { email, otp });
-    return data;
-  };
-
-  const sendOTP = async (email) => {
-    const { data } = await api.post('/auth/send-otp', { email });
     return data;
   };
 
@@ -96,7 +76,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, verifyLogin, register, logout, verifyOTP, sendOTP, socket, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );

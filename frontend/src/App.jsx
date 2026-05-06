@@ -12,7 +12,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Pages
 import Login from './pages/Login';
 import Register from './pages/Register';
-import OTPVerify from './pages/OTPVerify';
 import Dashboard from './pages/Dashboard';
 import Stations from './pages/Stations';
 import StationDetails from './pages/StationDetails';
@@ -57,7 +56,6 @@ const App = () => {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/verify-otp" element={<OTPVerify />} />
 
             {/* User Protected Routes */}
             <Route element={<ProtectedRoute />}>
