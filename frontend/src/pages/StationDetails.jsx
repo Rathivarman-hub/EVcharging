@@ -49,10 +49,34 @@ const StationDetails = () => {
     
     setBookingLoading(true);
     try {
+      const slotId = selectedSlot?._id || selectedSlot?.id;
+      if (!slotId) {
+        toast.error('Invalid slot selected. Please choose a slot again.');
+        return;
+      }
+
+      const bookingDate = new Date().toISOString();
+
+      // Avoid predictable 400s by checking availability before booking.
+      const { data: availability } = await api.get('/bookings/check-availability', {
+        params: {
+          stationId: id,
+          slotId,
+          date: bookingDate,
+        },
+      });
+
+      if (!availability?.isAvailable) {
+        toast.error('This slot was just booked by another user. Please choose another slot.');
+        await fetchStationDetails(false);
+        setSelectedSlot(null);
+        return;
+      }
+
       await api.post('/bookings', {
         stationId: id,
-        slotId: selectedSlot._id,
-        date: new Date().toISOString()
+        slotId,
+        date: bookingDate
       });
       toast.success('Slot booked successfully!');
       navigate('/bookings');

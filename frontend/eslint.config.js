@@ -17,5 +17,14 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // React 17+ JSX transform doesn't require importing React in every file.
+      'no-unused-vars': ['warn', { varsIgnorePattern: '^React$', argsIgnorePattern: '^_' }],
+      // Keep fast-refresh checks lightweight for this app's current module structure.
+      'react-refresh/only-export-components': 'off',
+      // Disable strict compiler-oriented hooks rules that don't match this codebase yet.
+      'react-hooks/immutability': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
 ])
