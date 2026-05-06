@@ -51,10 +51,8 @@ const io = new Server(httpServer, {
   }
 });
 
-// Attach io to app so it can be accessed in controllers
 app.set('io', io);
 
-// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -75,18 +73,16 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000, 
+  max: 100, 
 });
 app.use('/api/', limiter);
 
-// Mount routers
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/stations', stationRoutes);
-app.use('/api/stations/:stationId/slots', slotRoutes); // Nested route
+app.use('/api/stations/:stationId/slots', slotRoutes); 
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 
@@ -94,7 +90,6 @@ app.get('/', (req, res) => {
   res.send('EV Charging API is running...');
 });
 
-// Socket.io connection
 io.on('connection', (socket) => {
   console.log(`New client connected: ${socket.id}`);
   
@@ -103,7 +98,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Error Handling Middleware
 app.use(notFound);
 app.use(errorHandler);
 
