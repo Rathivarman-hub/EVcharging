@@ -1,11 +1,23 @@
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const smtpConfigured = Boolean(process.env.SMTP_USER && process.env.SMTP_PASS);
+const smtpTransporter = smtpConfigured
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    })
+  : null;
 
 const FROM = process.env.RESEND_FROM_EMAIL || 'EV Charging Booking <onboarding@resend.dev>';
+const SMTP_FROM = process.env.SMTP_USER;
 const RESEND_TEST_MODE_HINT = 'You can only send testing emails to your own email address';
 
 const escapeHtml = (text) => {
@@ -54,10 +66,32 @@ export const sendOTPEmail = async (email, otp, expiryMinutes = 10) => {
   }
 };
 
+const sendEmail = async ({ to, subject, html }) => {
+  if (smtpTransporter) {
+    await smtpTransporter.sendMail({
+      from: SMTP_FROM,
+      to,
+      subject,
+      html,
+    });
+    return;
+  }
+
+  const { error } = await resend.emails.send({
+    from: FROM,
+    to,
+    subject,
+    html,
+  });
+
+  if (error) {
+    throw error;
+  }
+};
+
 export const sendBookingConfirmation = async (email, bookingDetails) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: FROM,
+    await sendEmail({
       to: email,
       subject: 'Booking Confirmation - EV Charging',
       html: `
@@ -75,11 +109,6 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
         </div>
       `,
     });
-
-    if (error) {
-      throw error;
-    }
-    return data;
   } catch (error) {
     console.error('Error sending confirmation email with Resend:', error);
     throw new Error(`Failed to send confirmation email: ${error.message}`);
@@ -88,8 +117,7 @@ export const sendBookingConfirmation = async (email, bookingDetails) => {
 
 export const sendCancellationEmail = async (email, bookingDetails) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: FROM,
+    await sendEmail({
       to: email,
       subject: 'Booking Cancelled - EV Charging',
       html: `
@@ -107,11 +135,6 @@ export const sendCancellationEmail = async (email, bookingDetails) => {
         </div>
       `,
     });
-
-    if (error) {
-      throw error;
-    }
-    return data;
   } catch (error) {
     console.error('Error sending cancellation email with Resend:', error);
     throw new Error(`Failed to send cancellation email: ${error.message}`);
