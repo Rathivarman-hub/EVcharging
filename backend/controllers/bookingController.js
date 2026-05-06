@@ -16,6 +16,20 @@ export const bookSlot = async (req, res) => {
       return res.status(400).json({ message: 'Slot is already booked for this date' });
     }
 
+    const station = await Station.findById(stationId);
+    if (!station) {
+      return res.status(404).json({ message: 'Station not found' });
+    }
+
+    const slot = await Slot.findById(slotId);
+    if (!slot) {
+      return res.status(404).json({ message: 'Slot not found' });
+    }
+
+    if (slot.station.toString() !== stationId) {
+      return res.status(400).json({ message: 'Selected slot does not belong to this station' });
+    }
+
     const booking = await Booking.create({
       user: req.user._id,
       station: stationId,
@@ -30,9 +44,6 @@ export const bookSlot = async (req, res) => {
       req.app.get('io').emit('slotUpdate', { stationId, slotId, isBooked: true });
     }
 
-    const station = await Station.findById(stationId);
-    const slot = await Slot.findById(slotId);
-
     // Do not fail booking if mail provider is unavailable.
     try {
       await sendBookingConfirmation(req.user.email, {
@@ -46,6 +57,9 @@ export const bookSlot = async (req, res) => {
 
     res.status(201).json(booking);
   } catch (error) {
+    if (error?.code === 11000) {
+      return res.status(400).json({ message: 'Slot is already booked for this date' });
+    }
     res.status(500).json({ message: error.message });
   }
 };
