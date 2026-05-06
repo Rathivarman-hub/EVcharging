@@ -19,12 +19,14 @@ import stationRoutes from './routes/stationRoutes.js';
 import slotRoutes from './routes/slotRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import Booking from './models/Booking.js';
 
 dotenv.config();
 dns.setDefaultResultOrder('ipv4first');
 
 // Connect to MongoDB
 await connectDB();
+await Booking.syncIndexes();
 
 const app = express();
 app.set('trust proxy', 1);

@@ -27,8 +27,14 @@ const bookingSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Ensure a user can only book a slot once per day
-bookingSchema.index({ slot: 1, date: 1 }, { unique: true });
+// Enforce one active booking per slot/day, but allow re-booking after cancellation.
+bookingSchema.index(
+  { slot: 1, date: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: { $in: ['pending', 'confirmed', 'completed'] } },
+  }
+);
 
 const Booking = mongoose.model('Booking', bookingSchema);
 export default Booking;
