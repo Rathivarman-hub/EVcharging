@@ -1,5 +1,6 @@
 import Station from '../models/Station.js';
 import Slot from '../models/Slot.js';
+import Booking from '../models/Booking.js';
 
 export const addStation = async (req, res) => {
   try {
@@ -58,8 +59,42 @@ export const deleteStation = async (req, res) => {
 
 export const getAllStations = async (req, res) => {
   try {
-    const stations = await Station.find().populate('slots');
-    res.status(200).json(stations);
+    const stations = await Station.find().populate('slots').lean();
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const stationIds = stations.map((station) => station._id);
+    const activeBookings = await Booking.find({
+      station: { $in: stationIds },
+      date: { $gte: startOfDay, $lt: endOfDay },
+      status: { $in: ['pending', 'confirmed', 'completed'] },
+    }).select('slot station');
+
+    const bookedSlotsByStation = new Map();
+    activeBookings.forEach(({ station, slot }) => {
+      const stationKey = station.toString();
+      if (!bookedSlotsByStation.has(stationKey)) {
+        bookedSlotsByStation.set(stationKey, new Set());
+      }
+      bookedSlotsByStation.get(stationKey).add(slot.toString());
+    });
+
+    const stationsWithAvailability = stations.map((station) => {
+      const bookedSlots = bookedSlotsByStation.get(station._id.toString()) || new Set();
+      return {
+        ...station,
+        slots: (station.slots || []).map((slot) => ({
+          ...slot,
+          isBooked: bookedSlots.has(slot._id.toString()),
+        })),
+      };
+    });
+
+    res.status(200).json(stationsWithAvailability);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -67,9 +102,32 @@ export const getAllStations = async (req, res) => {
 
 export const getStationById = async (req, res) => {
   try {
-    const station = await Station.findById(req.params.id).populate('slots');
+    const station = await Station.findById(req.params.id).populate('slots').lean();
     if (!station) return res.status(404).json({ message: 'Station not found' });
-    res.status(200).json(station);
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1);
+
+    const activeBookings = await Booking.find({
+      station: station._id,
+      date: { $gte: startOfDay, $lt: endOfDay },
+      status: { $in: ['pending', 'confirmed', 'completed'] },
+    }).select('slot');
+
+    const bookedSlotIds = new Set(activeBookings.map((booking) => booking.slot.toString()));
+
+    const stationWithAvailability = {
+      ...station,
+      slots: (station.slots || []).map((slot) => ({
+        ...slot,
+        isBooked: bookedSlotIds.has(slot._id.toString()),
+      })),
+    };
+
+    res.status(200).json(stationWithAvailability);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

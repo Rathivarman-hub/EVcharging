@@ -36,8 +36,6 @@ export const bookSlot = async (req, res) => {
       date: startOfDay
     });
 
-    await Slot.findByIdAndUpdate(slotId, { isBooked: true });
-
     // Emit real-time event
     if (req.app.get('io')) {
       req.app.get('io').emit('slotUpdate', { stationId, slotId, isBooked: true });
@@ -63,8 +61,6 @@ export const cancelBooking = async (req, res) => {
 
     booking.status = 'cancelled';
     await booking.save();
-
-    await Slot.findByIdAndUpdate(booking.slot, { isBooked: false });
 
     // Emit real-time event
     if (req.app.get('io')) {
