@@ -65,7 +65,16 @@ export const cancelBooking = async (req, res) => {
       req.app.get('io').emit('slotUpdate', { stationId: booking.station, slotId: booking.slot, isBooked: false });
     }
 
-    await sendCancellationEmail(req.user.email);
+    // Get station and slot details for the email
+    const bookingWithDetails = await Booking.findById(req.params.id)
+      .populate('station')
+      .populate('slot');
+
+    await sendCancellationEmail(req.user.email, {
+      stationName: bookingWithDetails.station.name,
+      date: bookingWithDetails.date,
+      timeSlot: bookingWithDetails.slot.time
+    });
 
     res.status(200).json({ message: 'Booking cancelled successfully' });
   } catch (error) {
