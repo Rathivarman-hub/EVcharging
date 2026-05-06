@@ -1,7 +1,6 @@
 import Booking from '../models/Booking.js';
 import Slot from '../models/Slot.js';
 import Station from '../models/Station.js';
-import { sendBookingConfirmation, sendCancellationEmail } from '../utils/mailUtils.js';
 
 export const bookSlot = async (req, res) => {
   const { stationId, slotId, date } = req.body;
@@ -44,17 +43,6 @@ export const bookSlot = async (req, res) => {
       req.app.get('io').emit('slotUpdate', { stationId, slotId, isBooked: true });
     }
 
-    // Do not fail booking if mail provider is unavailable.
-    try {
-      await sendBookingConfirmation(req.user.email, {
-        stationName: station.name,
-        date: startOfDay,
-        timeSlot: slot.time
-      });
-    } catch (mailError) {
-      console.error('Booking confirmation email failed:', mailError.message);
-    }
-
     res.status(201).json(booking);
   } catch (error) {
     if (error?.code === 11000) {
@@ -81,22 +69,6 @@ export const cancelBooking = async (req, res) => {
     // Emit real-time event
     if (req.app.get('io')) {
       req.app.get('io').emit('slotUpdate', { stationId: booking.station, slotId: booking.slot, isBooked: false });
-    }
-
-    // Get station and slot details for the email
-    const bookingWithDetails = await Booking.findById(req.params.id)
-      .populate('station')
-      .populate('slot');
-
-    // Do not fail cancellation if mail provider is unavailable.
-    try {
-      await sendCancellationEmail(req.user.email, {
-        stationName: bookingWithDetails.station.name,
-        date: bookingWithDetails.date,
-        timeSlot: bookingWithDetails.slot.time
-      });
-    } catch (mailError) {
-      console.error('Cancellation email failed:', mailError.message);
     }
 
     res.status(200).json({ message: 'Booking cancelled successfully' });
