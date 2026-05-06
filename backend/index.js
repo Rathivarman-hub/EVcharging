@@ -31,9 +31,21 @@ app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
 // Configure Socket.io
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'http://localhost:3000',
+  'http://localhost:5173'
+].filter(Boolean);
+
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
   }
@@ -46,8 +58,19 @@ app.set('io', io);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
-app.use(helmet());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
