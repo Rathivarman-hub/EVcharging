@@ -22,12 +22,12 @@ const StationDetails = () => {
     fetchStationDetails();
 
     if (socket) {
-      socket.on('slotUpdated', (data) => {
-        if (data.stationId === id) {
+      socket.on('slotUpdate', (data) => {
+        if (String(data.stationId) === String(id)) {
           fetchStationDetails(false);
         }
       });
-      return () => socket.off('slotUpdated');
+      return () => socket.off('slotUpdate');
     }
   }, [id, socket]);
 
@@ -57,7 +57,11 @@ const StationDetails = () => {
       toast.success('Slot booked successfully!');
       navigate('/bookings');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Booking failed');
+      toast.error(
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0] ||
+        'Booking failed'
+      );
     } finally {
       setBookingLoading(false);
     }
