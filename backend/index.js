@@ -36,7 +36,6 @@ const httpServer = createServer(app);
 const allowedOrigins = [
   process.env.CLIENT_URL,
   'https://evcharging-one.vercel.app',
-  'https://evcharging-project.vercel.app',
   'http://localhost:3000',
   'http://localhost:5173'
 ].filter(Boolean);
