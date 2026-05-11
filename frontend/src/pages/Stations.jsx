@@ -3,8 +3,10 @@ import { Row, Col, Form, InputGroup, Button } from 'react-bootstrap';
 import api from '../services/api';
 import StationCard from '../components/StationCard';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Search, MapPin, SlidersHorizontal } from 'lucide-react';
+import { Search, MapPin, SlidersHorizontal, Map as MapIcon, List } from 'lucide-react';
 import { toast } from 'react-toastify';
+import MapComponent from '../components/MapComponent';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Stations = () => {
   const [stations, setStations] = useState([]);
@@ -12,6 +14,7 @@ const Stations = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState(null);
   const [radius, setRadius] = useState(10000); // 10km
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
 
   useEffect(() => {
     getUserLocation();
@@ -110,26 +113,71 @@ const Stations = () => {
           </Form.Select>
         </Col>
       </Row>
-
-      {loading ? (
-        <LoadingSpinner />
-      ) : filteredStations.length > 0 ? (
-        <Row className="g-4">
-          {filteredStations.map((station) => (
-            <Col key={station._id} sm={6} lg={4} xl={3}>
-              <StationCard station={station} userLocation={location} />
-            </Col>
-          ))}
-        </Row>
-      ) : (
-        <div className="text-center p-5 glass-card mt-4">
-          <div className="text-muted mb-3">
-            <Search size={48} strokeWidth={1} />
-          </div>
-          <h4 className="text-white">No Stations Found</h4>
-          <p className="text-muted">Try adjusting your search filters or location.</p>
+      
+      <div className="d-flex justify-content-end mb-3">
+        <div className="glass-card p-1 d-flex gap-1" style={{ borderRadius: '10px' }}>
+          <Button 
+            variant={viewMode === 'list' ? 'primary' : 'link'} 
+            className={`px-3 py-1 d-flex align-items-center gap-2 ${viewMode === 'list' ? 'text-white' : 'text-muted'}`}
+            onClick={() => setViewMode('list')}
+            style={{ borderRadius: '8px' }}
+          >
+            <List size={18} /> List
+          </Button>
+          <Button 
+            variant={viewMode === 'map' ? 'primary' : 'link'} 
+            className={`px-3 py-1 d-flex align-items-center gap-2 ${viewMode === 'map' ? 'text-white' : 'text-muted'}`}
+            onClick={() => setViewMode('map')}
+            style={{ borderRadius: '8px' }}
+          >
+            <MapIcon size={18} /> Map
+          </Button>
         </div>
-      )}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {viewMode === 'map' ? (
+          <motion.div
+            key="map-view"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="mb-4"
+          >
+            <MapComponent 
+              stations={filteredStations} 
+              height="500px"
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="list-view"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            {loading ? (
+              <LoadingSpinner />
+            ) : filteredStations.length > 0 ? (
+              <Row className="g-4">
+                {filteredStations.map((station) => (
+                  <Col key={station._id} sm={6} lg={4} xl={3}>
+                    <StationCard station={station} userLocation={location} />
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <div className="text-center p-5 glass-card mt-4">
+                <div className="text-muted mb-3">
+                  <Search size={48} strokeWidth={1} />
+                </div>
+                <h4 className="text-white">No Stations Found</h4>
+                <p className="text-muted">Try adjusting your search filters or location.</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

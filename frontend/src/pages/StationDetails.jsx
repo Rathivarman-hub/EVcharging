@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import SlotSelector from '../components/SlotSelector';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { MapPin, Zap, ChevronLeft, Clock, Info } from 'lucide-react';
+import MapComponent from '../components/MapComponent';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
 
@@ -175,6 +176,20 @@ const StationDetails = () => {
                 selectedSlot={selectedSlot} 
                 onSelect={setSelectedSlot} 
               />
+
+              {/* Google Map Integration */}
+              <div className="mt-4 mb-2">
+                <h5 className="text-white fw-bold mb-3 d-flex align-items-center gap-2">
+                  <MapPin size={20} className="text-primary" />
+                  Station Location & Directions
+                </h5>
+                <MapComponent
+                  coordinates={station?.location?.coordinates}
+                  stationName={station?.name}
+                  stationAddress={station?.location?.address}
+                  height="350px"
+                />
+              </div>
 
               <div className="mt-5 p-3 p-md-4 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-20 d-flex flex-column flex-md-row justify-content-between align-items-center gap-4 text-center text-md-start">
                 <div>
