@@ -5,15 +5,24 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { Users, Calendar, MapPin, TrendingUp, MoreVertical, RefreshCw } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { useAuth } from '../context/AuthContext';
 
 const AdminDashboard = () => {
+  const { socket } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recentBookings, setRecentBookings] = useState([]);
 
   useEffect(() => {
     fetchAdminData();
-  }, []);
+
+    if (socket) {
+      socket.on('adminUpdate', () => {
+        fetchAdminData();
+      });
+      return () => socket.off('adminUpdate');
+    }
+  }, [socket]);
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -25,7 +34,7 @@ const AdminDashboard = () => {
         totalUsers: statsData.totalUsers,
         totalBookings: statsData.totalBookings,
         activeStations: statsData.totalStations,
-        revenue: statsData.totalBookings * 15, // Simple revenue estimate ($15 per booking)
+        revenue: statsData.totalBookings * 250, // Simple revenue estimate (₹250 per booking)
         chartData: statsData.peakHours.map(item => ({
           name: item.time,
           bookings: item.count
@@ -102,7 +111,7 @@ const AdminDashboard = () => {
                 <TrendingUp size={24} />
               </div>
               <div>
-                <h3 className="text-white fw-bold mb-0">${stats?.revenue}</h3>
+                <h3 className="text-white fw-bold mb-0">₹{stats?.revenue}</h3>
                 <p className="text-muted small mb-0">Monthly Revenue</p>
               </div>
             </div>
@@ -114,25 +123,31 @@ const AdminDashboard = () => {
         <Col lg={8}>
           <Card className="glass-card p-4 h-100">
             <h5 className="text-white fw-bold mb-4">Booking Trends</h5>
-            <div style={{ height: '300px', width: '100%' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats?.chartData}>
-                  <defs>
-                    <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
-                  <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--bg-dark)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
-                    itemStyle={{ color: 'var(--primary)' }}
-                  />
-                  <Area type="monotone" dataKey="bookings" stroke="var(--primary)" fillOpacity={1} fill="url(#colorBookings)" strokeWidth={3} />
-                </AreaChart>
-              </ResponsiveContainer>
+            <div style={{ height: '300px', width: '100%', minHeight: '300px' }}>
+              {stats?.chartData && stats.chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300} minWidth={0} minHeight={0}>
+                  <AreaChart data={stats.chartData}>
+                    <defs>
+                      <linearGradient id="colorBookings" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                    <YAxis stroke="var(--text-muted)" fontSize={12} tickLine={false} axisLine={false} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'var(--bg-dark)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                      itemStyle={{ color: 'var(--primary)' }}
+                    />
+                    <Area type="monotone" dataKey="bookings" stroke="var(--primary)" fillOpacity={1} fill="url(#colorBookings)" strokeWidth={3} />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-100 d-flex align-items-center justify-content-center text-muted">
+                  No trend data available
+                </div>
+              )}
             </div>
           </Card>
         </Col>

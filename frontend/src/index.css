@@ -209,3 +209,33 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+/* Premium Glow Effects */
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.3);
+}
+
+.hover-glow:hover {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.transition-all {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scale-105 {
+  transform: scale(1.05);
+}
+
+.bg-accent {
+  background-color: var(--accent) !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.hover-opacity:hover {
+  opacity: 1 !important;
+}

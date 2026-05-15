@@ -29,10 +29,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // Here you would normally call a refresh token endpoint
-        // For simplicity, we'll just logout the user for now if unauthorized
-        // localStorage.removeItem('accessToken');
-        // window.location.href = '/login';
+        localStorage.removeItem('accessToken');
+        window.location.href = '/login';
       } catch (refreshError) {
         return Promise.reject(refreshError);
       }

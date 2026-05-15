@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import express from 'express';
-import dotenv from 'dotenv';
 import dns from 'dns';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -20,8 +20,6 @@ import slotRoutes from './routes/slotRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import Booking from './models/Booking.js';
-
-dotenv.config();
 dns.setDefaultResultOrder('ipv4first');
 
 // Connect to MongoDB
@@ -37,7 +35,8 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   'https://evcharging-one.vercel.app',
   'http://localhost:3000',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'http://127.0.0.1:5173'
 ].filter(Boolean);
 
 const io = new Server(httpServer, {
@@ -78,7 +77,7 @@ if (process.env.NODE_ENV === 'development') {
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  max: 1000, // Increased for development
 });
 app.use('/api/', limiter);
 
@@ -94,17 +93,14 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log(`New client connected: ${socket.id}`);
-  
   socket.on('disconnect', () => {
-    console.log(`Client disconnected: ${socket.id}`);
   });
 });
 
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT ;
 
 httpServer.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);

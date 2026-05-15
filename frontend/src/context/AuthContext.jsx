@@ -41,7 +41,10 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (user) {
-      const newSocket = io(import.meta.env.VITE_SOCKET_URL);
+      const newSocket = io(import.meta.env.VITE_SOCKET_URL, {
+        transports: ['polling', 'websocket'],
+        withCredentials: true
+      });
       setSocket(newSocket);
       return () => newSocket.close();
     } else {
@@ -75,8 +78,18 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const refreshUserData = async () => {
+    try {
+      const { data } = await api.get('/auth/profile');
+      setUser(data);
+      return data;
+    } catch (error) {
+      console.error('Failed to refresh user data', error);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, updateUserProfile }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, socket, updateUserProfile, refreshUserData }}>
       {children}
     </AuthContext.Provider>
   );

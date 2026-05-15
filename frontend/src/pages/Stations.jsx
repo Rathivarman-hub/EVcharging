@@ -7,49 +7,41 @@ import { Search, MapPin, SlidersHorizontal, Map as MapIcon, List } from 'lucide-
 import { toast } from 'react-toastify';
 import MapComponent from '../components/MapComponent';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const Stations = () => {
+  const { socket } = useAuth();
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [location, setLocation] = useState(null);
-  const [radius, setRadius] = useState(10000); // 10km
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [sortBy, setSortBy] = useState('name');
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
 
   useEffect(() => {
-    getUserLocation();
+    fetchStations();
   }, []);
 
-  const getUserLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          setLocation(coords);
-          fetchStations(coords);
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          toast.warn("Using default location. Enable GPS for nearby stations.");
-          fetchStations();
-        }
-      );
-    } else {
+  // Real-time: re-fetch whenever admin adds/edits/deletes a station
+  useEffect(() => {
+    if (!socket) return;
+    const handleStationUpdate = () => {
       fetchStations();
-    }
-  };
+    };
+    socket.on('station_updated', handleStationUpdate);
+    socket.on('station_created', handleStationUpdate);
+    socket.on('station_deleted', handleStationUpdate);
+    return () => {
+      socket.off('station_updated', handleStationUpdate);
+      socket.off('station_created', handleStationUpdate);
+      socket.off('station_deleted', handleStationUpdate);
+    };
+  }, [socket]);
 
-  const fetchStations = async (coords = location) => {
+  const fetchStations = async () => {
     setLoading(true);
     try {
-      let url = '/stations';
-      if (coords) {
-        url += `?lat=${coords.lat}&lng=${coords.lng}&maxDistance=${radius}`;
-      }
-      const { data } = await api.get(url);
+      const { data } = await api.get('/stations');
       setStations(data);
     } catch (error) {
       toast.error('Failed to load stations');
@@ -58,59 +50,75 @@ const Stations = () => {
     }
   };
 
-  const filteredStations = stations.filter(station => 
-    station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    station.location.address.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStations = stations
+    .filter(station => 
+      (station.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      station.location.address.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!showAvailableOnly || (station.slots?.filter(s => !s.isBooked).length > 0))
+    )
+    .sort((a, b) => {
+      if (sortBy === 'name') return a.name.localeCompare(b.name);
+      if (sortBy === 'slots') {
+        const aSlots = a.slots?.filter(s => !s.isBooked).length || 0;
+        const bSlots = b.slots?.filter(s => !s.isBooked).length || 0;
+        return bSlots - aSlots;
+      }
+      return 0;
+    });
 
   return (
     <div className="fade-in">
       <div className="mb-4">
         <h1 className="fw-bold text-white mb-1">Charging Stations</h1>
         <p className="text-muted">
-          {filteredStations.length} EV charging station{filteredStations.length !== 1 ? 's' : ''} available 
-          {searchTerm ? ` in "${searchTerm}"` : ' near you'}.
+          {filteredStations.length} EV charging station{filteredStations.length !== 1 ? 's' : ''} found 
+          {searchTerm ? ` matching "${searchTerm}"` : ' in our network'}.
         </p>
       </div>
 
-
       <Row className="g-3 mb-4">
-        <Col md={6} lg={8}>
+        <Col md={6} lg={5}>
           <InputGroup className="glass-card border-0">
             <InputGroup.Text className="bg-transparent border-0 text-muted ps-3">
               <Search size={20} />
             </InputGroup.Text>
             <Form.Control
-              placeholder="Search by cityname or address..."
+              placeholder="Search by city or station name..."
               className="bg-transparent text-white border-0 py-3"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </InputGroup>
         </Col>
-        <Col md={3} lg={2}>
-          <Button 
-            variant="outline-primary" 
-            className="w-100 h-100 py-3 d-flex align-items-center justify-content-center gap-2 border-white border-opacity-10 text-white"
-            onClick={getUserLocation}
-          >
-            <MapPin size={20} /> Near Me
-          </Button>
+        
+        <Col md={3} lg={3}>
+          <div className="glass-card h-100 d-flex align-items-center px-3 border-white border-opacity-10">
+            <Form.Check 
+              type="switch"
+              id="available-switch"
+              label="Available Now"
+              className="text-white small fw-bold"
+              checked={showAvailableOnly}
+              onChange={(e) => setShowAvailableOnly(e.target.checked)}
+            />
+          </div>
         </Col>
-        <Col md={3} lg={2}>
-          <Form.Select 
-            className="w-100 h-100 py-3 bg-dark border-white border-opacity-10 text-white"
-            value={radius}
-            onChange={(e) => {
-              setRadius(e.target.value);
-              if(location) fetchStations(location);
-            }}
-          >
-            <option value="5000">5 KM</option>
-            <option value="10000">10 KM</option>
-            <option value="20000">20 KM</option>
-            <option value="50000">50 KM</option>
-          </Form.Select>
+
+        <Col md={3} lg={4}>
+          <InputGroup className="glass-card border-0">
+            <InputGroup.Text className="bg-transparent border-0 text-muted ps-3">
+              <SlidersHorizontal size={18} />
+            </InputGroup.Text>
+            <Form.Select 
+              className="bg-transparent text-white border-0 py-3"
+              style={{ cursor: 'pointer' }}
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="name" className="bg-dark">Sort by: Name</option>
+              <option value="slots" className="bg-dark">Sort by: Availability</option>
+            </Form.Select>
+          </InputGroup>
         </Col>
       </Row>
       
@@ -162,7 +170,7 @@ const Stations = () => {
               <Row className="g-4">
                 {filteredStations.map((station) => (
                   <Col key={station._id} sm={6} lg={4} xl={3}>
-                    <StationCard station={station} userLocation={location} />
+                    <StationCard station={station} />
                   </Col>
                 ))}
               </Row>

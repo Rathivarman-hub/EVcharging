@@ -39,6 +39,7 @@ export const bookSlot = async (req, res) => {
     // Emit real-time event
     if (req.app.get('io')) {
       req.app.get('io').emit('slotUpdate', { stationId, slotId, isBooked: true });
+      req.app.get('io').emit('adminUpdate');
     }
 
     res.status(201).json(booking);
@@ -65,6 +66,7 @@ export const cancelBooking = async (req, res) => {
     // Emit real-time event
     if (req.app.get('io')) {
       req.app.get('io').emit('slotUpdate', { stationId: booking.station, slotId: booking.slot, isBooked: false });
+      req.app.get('io').emit('adminUpdate');
     }
 
     res.status(200).json({ message: 'Booking cancelled successfully' });

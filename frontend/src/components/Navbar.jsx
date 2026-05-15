@@ -7,6 +7,12 @@ import { User, LogOut, Zap, Menu } from 'lucide-react';
 const Navbar = ({ onToggleSidebar }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [currentTime, setCurrentTime] = React.useState(new Date());
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -38,6 +44,14 @@ const Navbar = ({ onToggleSidebar }) => {
         
         <BsNavbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto align-items-center gap-3 mt-3 mt-lg-0">
+            {user && (
+              <div className="d-flex align-items-center gap-2 bg-dark bg-opacity-50 px-2 px-md-3 py-1 py-md-1.5 rounded-pill small border border-white border-opacity-10 shadow-lg" style={{ backdropFilter: 'blur(15px)', minWidth: 'fit-content' }}>
+                <div className="bg-success rounded-circle shadow-glow" style={{ width: '6px', height: '6px', boxShadow: '0 0 10px rgba(16, 185, 129, 0.8)' }}></div>
+                <span className="fw-bold text-white mb-0" style={{ letterSpacing: '0.5px', fontSize: '0.75rem', lineHeight: '1' }}>
+                  {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            )}
             {!user ? (
               <>
                 <Nav.Link as={Link} to="/login">Login</Nav.Link>
@@ -49,8 +63,16 @@ const Navbar = ({ onToggleSidebar }) => {
               <Dropdown align="end" className="w-100 w-lg-auto">
                 <Dropdown.Toggle variant="transparent" id="dropdown-user" className="p-2 p-lg-0 border-0 d-flex align-items-center gap-2 text-white w-100 justify-content-between justify-content-lg-start">
                   <div className="d-flex align-items-center gap-2">
-                    <div className="bg-secondary rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ width: '35px', height: '35px' }}>
-                      <User size={18} />
+                    <div className="bg-secondary rounded-circle overflow-hidden d-flex align-items-center justify-content-center" style={{ width: '35px', height: '35px' }}>
+                      {user.profilePicture ? (
+                        <img 
+                          src={user.profilePicture} 
+                          alt="Profile" 
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                        />
+                      ) : (
+                        <User size={18} />
+                      )}
                     </div>
                     <span>{user.name}</span>
                   </div>

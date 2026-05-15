@@ -8,7 +8,7 @@ import {
   getNearbyStations 
 } from '../controllers/stationController.js';
 import { authMiddleware, roleMiddleware } from '../middleware/authMiddleware.js';
-import { validateStationInput } from '../middleware/validationMiddleware.js';
+import { validateStationInput, validateStationUpdate } from '../middleware/validationMiddleware.js';
 
 const router = express.Router();
 
@@ -20,7 +20,7 @@ router.get('/nearby', getNearbyStations);
 
 router.route('/:id')
   .get(getStationById)
-  .put(authMiddleware, roleMiddleware(['admin']), validateStationInput, updateStation)
+  .put(authMiddleware, roleMiddleware(['admin']), validateStationUpdate, updateStation)
   .delete(authMiddleware, roleMiddleware(['admin']), deleteStation);
 
 export default router;
