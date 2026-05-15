@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Button, Table, Badge } from 'react-bootstrap';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Users, Calendar, MapPin, TrendingUp, MoreVertical, RefreshCw } from 'lucide-react';
+import { Users, Calendar, MapPin, TrendingUp, MoreVertical, RefreshCw, Zap } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useAuth } from '../context/AuthContext';
@@ -79,10 +79,10 @@ const AdminDashboard = () => {
           </Card>
         </Col>
         <Col md={3}>
-          <Card className="glass-card p-3 border-0">
+          <Card className="glass-card p-3 border-0 border-start border-4 border-success shadow-sm">
             <div className="d-flex align-items-center gap-3">
-              <div className="bg-accent bg-opacity-10 p-3 rounded-3" style={{ color: '#10b981' }}>
-                <Calendar size={24} />
+              <div className="bg-success bg-opacity-10 p-3 rounded-3 text-success">
+                <Zap size={24} />
               </div>
               <div>
                 <h3 className="text-white fw-bold mb-0">{stats?.totalBookings}</h3>

@@ -189,10 +189,10 @@ const Dashboard = () => {
         <Col lg={8}>
           <Row className="g-4 mb-4">
             <Col md={6}>
-              <Card className="glass-card p-4 border-0 border-start border-4 border-primary shadow-lg">
+              <Card className="glass-card p-4 border-0 border-start border-4 border-success shadow-lg">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bg-primary bg-opacity-10 p-3 rounded-4 text-primary shadow-sm">
-                    <Calendar size={24} />
+                  <div className="bg-success bg-opacity-10 p-3 rounded-4 text-success shadow-sm">
+                    <Zap size={24} />
                   </div>
                   <div>
                     <h2 className="text-white fw-bold mb-0">{stats.totalBookings}</h2>
@@ -202,9 +202,9 @@ const Dashboard = () => {
               </Card>
             </Col>
             <Col md={6}>
-              <Card className="glass-card p-4 border-0 border-start border-4 border-accent shadow-lg">
+              <Card className="glass-card p-4 border-0 border-start border-4 border-primary shadow-lg">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bg-accent bg-opacity-10 p-3 rounded-4 text-accent shadow-sm" style={{ color: '#10b981' }}>
+                  <div className="bg-primary bg-opacity-10 p-3 rounded-4 text-primary shadow-sm">
                     <MapPin size={24} />
                   </div>
                   <div>
