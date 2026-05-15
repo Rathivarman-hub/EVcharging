@@ -217,7 +217,10 @@ const Dashboard = () => {
           </Row>
 
           <Card className="glass-card h-100 shadow-lg border-0 overflow-hidden">
-            <Card.Header className="bg-white bg-opacity-5 border-bottom border-white border-opacity-5 p-4 d-flex justify-content-between align-items-center">
+            <Card.Header 
+              className="border-bottom border-white border-opacity-5 p-4 d-flex justify-content-between align-items-center"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+            >
               <h5 className="text-white fw-bold mb-0">Recent Activity</h5>
               <Button variant="link" className="text-primary p-0 text-decoration-none small fw-bold">View All History</Button>
             </Card.Header>

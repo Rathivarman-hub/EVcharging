@@ -153,8 +153,11 @@ const AdminDashboard = () => {
         </Col>
 
         <Col lg={4}>
-          <Card className="glass-card h-100">
-            <Card.Header className="bg-transparent border-white border-opacity-10 p-4">
+          <Card className="glass-card h-100 shadow-lg border-0 overflow-hidden">
+            <Card.Header 
+              className="border-bottom border-white border-opacity-10 p-4"
+              style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}
+            >
               <h5 className="text-white fw-bold mb-0">Recent Bookings</h5>
             </Card.Header>
             <Card.Body className="p-0">
