@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Card, Modal, Form, Row, Col, Badge } from 'react-bootstrap';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { Plus, Edit, Trash2, MapPin, Zap, ExternalLink, X } from 'lucide-react';
+import { Plus, Edit, Trash2, MapPin, Zap, ExternalLink, X, Calendar } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
