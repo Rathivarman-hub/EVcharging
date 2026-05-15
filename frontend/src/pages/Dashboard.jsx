@@ -122,33 +122,40 @@ const Dashboard = () => {
                 )}
               </div>
               <h4 className="text-white fw-bold mb-1">{user?.name}</h4>
-              <Badge bg="primary" className="bg-opacity-20 text-primary border border-primary border-opacity-20 px-3 py-2 rounded-pill text-uppercase" style={{ fontSize: '0.6rem', letterSpacing: '1px' }}>
-                {user?.role}
-              </Badge>
+              <div 
+                className="rounded-pill text-uppercase d-inline-block mx-auto mb-2 text-white fw-bold px-3 py-1" 
+                style={{ 
+                  fontSize: '0.65rem', 
+                  letterSpacing: '1.5px', 
+                  backgroundColor: 'rgba(0, 210, 255, 0.3)',
+                  border: '1px solid rgba(0, 210, 255, 0.3)'
+                }}
+              >
+                {user?.role || 'USER'}
+              </div>
             </div>
             
-            <Card.Body className="p-4 bg-dark bg-opacity-20">
+            <Card.Body className="p-4" style={{ backgroundColor: 'rgba(15, 23, 42, 0.3)' }}>
               {!isEditing ? (
                 <div className="d-flex flex-column gap-3">
-                  <div className="d-flex align-items-center gap-3 text-white text-opacity-75">
-                    <div className="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><Mail size={16} /></div>
-                    <span>{user?.email}</span>
+                  <div className="d-flex align-items-center gap-3 text-white text-opacity-80">
+                    <div className="bg-primary bg-opacity-10 p-2 rounded-3 text-primary shadow-sm"><Mail size={16} /></div>
+                    <span className="small">{user?.email}</span>
                   </div>
-                  <div className="d-flex align-items-center gap-3 text-white text-opacity-75">
-                    <div className="bg-success bg-opacity-10 p-2 rounded-3 text-success"><Shield size={16} /></div>
-                    <span>Account Verified</span>
+                  <div className="d-flex align-items-center gap-3 text-white text-opacity-80">
+                    <div className="bg-success bg-opacity-10 p-2 rounded-3 text-success shadow-sm"><Shield size={16} /></div>
+                    <span className="small">Account Verified</span>
                   </div>
-                  <div className="d-flex align-items-center gap-3 text-white text-opacity-75">
-                    <div className="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><Phone size={16} /></div>
-                    <span>{user?.phone || 'No contact added'}</span>
+                  <div className="d-flex align-items-center gap-3 text-white text-opacity-80">
+                    <div className="bg-primary bg-opacity-10 p-2 rounded-3 text-primary shadow-sm"><Phone size={16} /></div>
+                    <span className="small">{user?.phone || 'No contact added'}</span>
                   </div>
                   <Button 
-                    variant="outline-primary" 
-                    size="sm" 
-                    className="mt-3 d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 border-opacity-25"
+                    variant="link" 
+                    className="mt-3 text-primary text-decoration-none d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 border border-primary border-opacity-25 hover-glow transition-all"
                     onClick={() => setIsEditing(true)}
                   >
-                    <Edit2 size={14} /> Edit Profile
+                    <Edit2 size={14} /> <span className="small fw-bold">Edit Profile</span>
                   </Button>
                 </div>
               ) : (
