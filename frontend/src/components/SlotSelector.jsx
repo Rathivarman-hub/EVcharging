@@ -1,6 +1,7 @@
 import React from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
+import { Row, Col, Button, Badge } from 'react-bootstrap';
 import { Clock, Check } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const SlotSelector = ({ slots, selectedSlot, onSelect }) => {
   const isPast = (slotTime) => {
@@ -8,9 +9,7 @@ const SlotSelector = ({ slots, selectedSlot, onSelect }) => {
       const [startTimeStr] = slotTime.split(' - ');
       const now = new Date();
       const [time, modifier] = startTimeStr.split(' ');
-      let [hours, minutes] = time.split(':');
-      hours = parseInt(hours, 10);
-      minutes = parseInt(minutes, 10);
+      let [hours, minutes] = time.split(':').map(Number);
       
       if (modifier === 'PM' && hours < 12) hours += 12;
       if (modifier === 'AM' && hours === 12) hours = 0;
@@ -24,20 +23,12 @@ const SlotSelector = ({ slots, selectedSlot, onSelect }) => {
     }
   };
 
-  if (!slots || slots.length === 0) {
-    return (
-      <div className="text-center p-5 border border-dashed border-white border-opacity-10 rounded-3">
-        <p className="text-muted mb-0">No slots available for this station.</p>
-      </div>
-    );
-  }
-
   return (
     <Row className="g-3">
       {slots.map((slot) => {
+        const isBooked = slot.isBooked;
         const isSelected = selectedSlot?._id === slot._id;
         const past = isPast(slot.time);
-        const isBooked = slot.isBooked || past;
 
         return (
           <Col key={slot._id} xs={6} md={4} lg={3}>

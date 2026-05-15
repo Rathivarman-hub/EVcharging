@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Button, Form, Badge } from 'react-bootstrap';
+import { Row, Col, Card, Button, Form, Badge, Table } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { toast } from 'react-toastify';
-import { User, Mail, Shield, Calendar, MapPin, Edit2, Save, X, Phone, Camera, Loader } from 'lucide-react';
+import { User, Mail, Shield, Calendar, MapPin, Edit2, Save, X, Phone, Camera, Loader, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '../components/LoadingSpinner';
 
