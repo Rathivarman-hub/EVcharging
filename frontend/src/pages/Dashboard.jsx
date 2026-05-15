@@ -11,7 +11,7 @@ const Dashboard = () => {
   const { user, updateUserProfile, refreshUserData } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', profilePicture: '' });
-  const [stats, setStats] = useState({ totalBookings: 0, activeBookings: 0 });
+  const [stats, setStats] = useState({ totalBookings: 0, activeBookings: 0, recentActivity: [] });
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
@@ -59,7 +59,7 @@ const Dashboard = () => {
       setStats({
         totalBookings: data.length,
         activeBookings: data.filter(b => b.status === 'confirmed').length,
-        recentActivity: data.slice(0, 5) // Last 5 bookings
+        recentActivity: data.slice(0, 5)
       });
     } catch (error) {
       console.error('Error fetching stats', error);
@@ -92,10 +92,10 @@ const Dashboard = () => {
 
       <Row className="g-4">
         <Col lg={4}>
-          <Card className="glass-card h-100 overflow-hidden">
-            <div className="bg-primary bg-opacity-20 p-4 text-center border-bottom border-white border-opacity-10 position-relative">
+          <Card className="glass-card h-100 overflow-hidden border-0 shadow-lg">
+            <div className="bg-primary bg-opacity-10 p-4 text-center border-bottom border-white border-opacity-5 position-relative">
               <div className="position-relative d-inline-block mb-3">
-                <div className="bg-primary rounded-circle overflow-hidden shadow-lg" style={{ width: '100px', height: '100px' }}>
+                <div className="bg-primary rounded-circle overflow-hidden shadow-glow" style={{ width: '100px', height: '100px', border: '3px solid rgba(255,255,255,0.1)' }}>
                   {formData.profilePicture || user?.profilePicture ? (
                     <img 
                       src={formData.profilePicture || user?.profilePicture} 
@@ -109,7 +109,7 @@ const Dashboard = () => {
                   )}
                 </div>
                 {isEditing && (
-                  <label htmlFor="photo-upload" className="position-absolute bottom-0 end-0 bg-accent rounded-circle p-2 cursor-pointer shadow" style={{ cursor: 'pointer', backgroundColor: '#10b981' }}>
+                  <label htmlFor="photo-upload" className="position-absolute bottom-0 end-0 bg-accent rounded-circle p-2 cursor-pointer shadow-lg" style={{ cursor: 'pointer', backgroundColor: '#10b981' }}>
                     {uploading ? <Loader size={14} className="spin" /> : <Camera size={14} color="white" />}
                     <input 
                       id="photo-upload" 
@@ -122,30 +122,30 @@ const Dashboard = () => {
                 )}
               </div>
               <h4 className="text-white fw-bold mb-1">{user?.name}</h4>
-              <Badge bg="primary" className="px-3 py-2 rounded-pill text-uppercase" style={{ fontSize: '0.6rem', letterSpacing: '1px' }}>
+              <Badge bg="primary" className="bg-opacity-20 text-primary border border-primary border-opacity-20 px-3 py-2 rounded-pill text-uppercase" style={{ fontSize: '0.6rem', letterSpacing: '1px' }}>
                 {user?.role}
               </Badge>
             </div>
             
-            <Card.Body className="p-4">
+            <Card.Body className="p-4 bg-dark bg-opacity-20">
               {!isEditing ? (
                 <div className="d-flex flex-column gap-3">
-                  <div className="d-flex align-items-center gap-3 text-muted">
-                    <Mail size={18} className="text-primary" />
+                  <div className="d-flex align-items-center gap-3 text-white text-opacity-75">
+                    <div className="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><Mail size={16} /></div>
                     <span>{user?.email}</span>
                   </div>
-                  <div className="d-flex align-items-center gap-3 text-muted">
-                    <Shield size={18} className="text-primary" />
+                  <div className="d-flex align-items-center gap-3 text-white text-opacity-75">
+                    <div className="bg-success bg-opacity-10 p-2 rounded-3 text-success"><Shield size={16} /></div>
                     <span>Account Verified</span>
                   </div>
-                  <div className="d-flex align-items-center gap-3 text-muted">
-                    <Phone size={18} className="text-primary" />
+                  <div className="d-flex align-items-center gap-3 text-white text-opacity-75">
+                    <div className="bg-primary bg-opacity-10 p-2 rounded-3 text-primary"><Phone size={16} /></div>
                     <span>{user?.phone || 'No contact added'}</span>
                   </div>
                   <Button 
                     variant="outline-primary" 
                     size="sm" 
-                    className="mt-3 d-flex align-items-center justify-content-center gap-2"
+                    className="mt-3 d-flex align-items-center justify-content-center gap-2 rounded-pill py-2 border-opacity-25"
                     onClick={() => setIsEditing(true)}
                   >
                     <Edit2 size={14} /> Edit Profile
@@ -157,35 +157,26 @@ const Dashboard = () => {
                     <Form.Label className="text-muted small fw-bold">NAME</Form.Label>
                     <Form.Control 
                       type="text" 
-                      className="bg-transparent text-white" 
+                      className="bg-white bg-opacity-5 text-white border-white border-opacity-10" 
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label className="text-muted small fw-bold">EMAIL</Form.Label>
-                    <Form.Control 
-                      type="email" 
-                      className="bg-transparent text-white" 
-                      value={formData.email}
-                      disabled
                     />
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label className="text-muted small fw-bold">CONTACT NUMBER</Form.Label>
                     <Form.Control 
                       type="text" 
-                      className="bg-transparent text-white" 
+                      className="bg-white bg-opacity-5 text-white border-white border-opacity-10" 
                       placeholder="+91 XXXXX XXXXX"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     />
                   </Form.Group>
                   <div className="d-flex gap-2 mt-4">
-                    <Button variant="primary" size="sm" type="submit" className="flex-grow-1 d-flex align-items-center justify-content-center gap-2">
-                      <Save size={14} /> Save
+                    <Button variant="primary" size="sm" type="submit" className="flex-grow-1 d-flex align-items-center justify-content-center gap-2 rounded-pill">
+                      <Save size={14} /> Save Changes
                     </Button>
-                    <Button variant="outline-danger" size="sm" onClick={() => setIsEditing(false)}>
+                    <Button variant="outline-danger" size="sm" className="rounded-circle p-2" onClick={() => setIsEditing(false)}>
                       <X size={14} />
                     </Button>
                   </div>
@@ -198,27 +189,27 @@ const Dashboard = () => {
         <Col lg={8}>
           <Row className="g-4 mb-4">
             <Col md={6}>
-              <Card className="glass-card p-4 border-start border-4 border-primary">
+              <Card className="glass-card p-4 border-0 border-start border-4 border-primary shadow-lg">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bg-primary bg-opacity-10 p-3 rounded-3">
-                    <Calendar size={24} className="text-primary" />
+                  <div className="bg-primary bg-opacity-10 p-3 rounded-4 text-primary shadow-sm">
+                    <Calendar size={24} />
                   </div>
                   <div>
                     <h2 className="text-white fw-bold mb-0">{stats.totalBookings}</h2>
-                    <p className="text-muted small mb-0">Total Bookings</p>
+                    <p className="text-muted small mb-0 fw-medium">Total Bookings</p>
                   </div>
                 </div>
               </Card>
             </Col>
             <Col md={6}>
-              <Card className="glass-card p-4 border-start border-4 border-accent">
+              <Card className="glass-card p-4 border-0 border-start border-4 border-accent shadow-lg">
                 <div className="d-flex align-items-center gap-3">
-                  <div className="bg-accent bg-opacity-10 p-3 rounded-3">
-                    <MapPin size={24} color="#10b981" />
+                  <div className="bg-accent bg-opacity-10 p-3 rounded-4 text-accent shadow-sm" style={{ color: '#10b981' }}>
+                    <MapPin size={24} />
                   </div>
                   <div>
                     <h2 className="text-white fw-bold mb-0">{stats.activeBookings}</h2>
-                    <p className="text-muted small mb-0">Active Slots</p>
+                    <p className="text-muted small mb-0 fw-medium">Active Slots</p>
                   </div>
                 </div>
               </Card>
@@ -226,14 +217,14 @@ const Dashboard = () => {
           </Row>
 
           <Card className="glass-card h-100 shadow-lg border-0 overflow-hidden">
-            <Card.Header className="bg-white bg-opacity-5 border-white border-opacity-10 p-4 d-flex justify-content-between align-items-center">
+            <Card.Header className="bg-white bg-opacity-5 border-bottom border-white border-opacity-5 p-4 d-flex justify-content-between align-items-center">
               <h5 className="text-white fw-bold mb-0">Recent Activity</h5>
-              <Button variant="link" className="text-primary p-0 text-decoration-none small fw-bold">View All</Button>
+              <Button variant="link" className="text-primary p-0 text-decoration-none small fw-bold">View All History</Button>
             </Card.Header>
-            <Card.Body className="p-0">
+            <Card.Body className="p-0 bg-dark bg-opacity-10">
               {stats.recentActivity && stats.recentActivity.length > 0 ? (
                 <div className="table-responsive">
-                  <Table variant="dark" hover className="mb-0 bg-transparent align-middle border-0">
+                  <Table hover className="mb-0 bg-transparent align-middle border-0">
                     <tbody>
                       {stats.recentActivity.map((booking) => (
                         <tr key={booking._id} className="border-white border-opacity-5 hover-glow transition-all">
@@ -249,7 +240,7 @@ const Dashboard = () => {
                             </div>
                           </td>
                           <td className="bg-transparent py-3 text-center">
-                            <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-20 px-2 py-1" style={{ fontSize: '0.65rem' }}>
+                            <Badge bg="primary" className="bg-opacity-10 text-primary border border-primary border-opacity-20 px-3 py-1" style={{ fontSize: '0.65rem', borderRadius: '6px' }}>
                               {booking.slot?.time || 'Time Slot'}
                             </Badge>
                           </td>
